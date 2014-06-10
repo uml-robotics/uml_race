@@ -1,0 +1,33 @@
+#!/bin/bash
+killall -9 xterm roslaunch rosmaster stageros >& /dev/null
+roscore >& /dev/null &
+mkdir -p ~/robotics1_submissions
+#[ $(pgrep -x sshfs) ] || sshfs mercury:robotics1_submissions/lab3 ~/robotics1_submissions
+. ~/.bashrc
+cd ~/robotics1_submissions
+subs=()
+index=0
+for x in `ls`; do
+    echo "$index: $x"
+    subs[$index]="$x"
+    index=`expr $index + 1`
+done
+read -p "Choice: " sub
+rm -Rf ~/robotics1_test
+mkdir -p ~/robotics1_test
+[ -d ~/robotics1_submissions/${subs[$sub]} ] && ln -s ~/robotics1_submissions/${subs[sub]} ~/robotics1_test/${subs[sub]} || cp ~/robotics1_submissions/${subs[$sub]} ~/robotics1_test
+cd ~/robotics1_test
+#tar -xf ${subs[$sub]}
+#unzip *.zip >& /dev/null
+#tar -xvf *.tgz >& /dev/null
+#tar -xvf *.tar.gz >& /dev/null
+#tar -xvf *.tar >& /dev/null
+#rm -f *.zip *.tgz *.tar *.tar.gz >& /dev/null
+pwd
+ls
+set -x
+cd `dirname $(find -follow -name manifest.xml | grep -v uml_race)`
+export ROS_PACKAGE_PATH=`pwd`:$ROS_PACKAGE_PATH:$HOME/robotics1_test
+sed -i "s/<depend package=\"`basename $(pwd)`\".*//g" manifest.xml
+rosmake --pre-clean
+xterm -e '. ~/.bashrc; roslaunch uml_race racetrack.launch; read -p "Press enter when done" noop; rosnode kill -a' &

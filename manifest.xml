@@ -1,0 +1,12 @@
+<package>
+  <description brief="uml_race">
+    Provides a world and launch file for the race 
+    track simulation.  
+  </description>
+  <author>Nat Tuck</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/uml_igvc_stage</url>
+  <depend package="rospy"/>
+  <depend package="stage"/>
+</package>
