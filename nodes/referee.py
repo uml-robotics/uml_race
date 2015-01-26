@@ -4,8 +4,8 @@ import rospy
 
 max_speed = 5.0
 
-goal_x = -14.5
-goal_y =  25.0
+goal_x = -25.0
+goal_y = -14.0
 goal_e =   2.0
 
 start_time = None
@@ -15,8 +15,12 @@ from nav_msgs.msg import Odometry
 from math import sqrt
 import os
 
-def quit():
-    os.kill(os.getpid(), 15)
+def toS(t):
+    return float(t.secs)+float(t.nsecs) / 1000000000.0
+
+def quit(reason):
+    print reason
+    rospy.signal_shutdown(reason)
 
 def distance(x0, y0, x1, y1):
     dx = x1 - x0
@@ -27,16 +31,14 @@ def got_cmd_vel(msg):
     global start_time
 
     if msg.linear.y > 0 or msg.linear.z > 0:
-        print "Error: Move in bad direction"
-        quit()
+        quit("Error: Move in bad direction")
 
     if msg.linear.x > max_speed:
-        print "Error: speed limit exceeded"
-        quit()
+        quit("Error: speed limit exceeded")
 
-    if start_time == None and msg.linear.x > 0:
+    if start_time == None and msg.linear.x != 0:
         start_time = rospy.Time.now()
-        print "Start moving at ", start_time
+        print "Start moving at %s" % toS(start_time)
 
 def got_odom(msg):
     global start_time
@@ -46,12 +48,11 @@ def got_odom(msg):
 
     if start_time != None and d < goal_e:
         duration = rospy.Time.now() - start_time
-        print "Finished in ", duration
-        quit()
+        quit("Finished in %fs" % toS(duration))
 
 rospy.init_node('referee')
 
 rospy.Subscriber('cmd_vel', Twist, got_cmd_vel)
 rospy.Subscriber('base_pose_ground_truth', Odometry, got_odom)
 
-rospy.spin()    
+rospy.spin()
