@@ -19,7 +19,7 @@ def toS(t):
     return float(t.secs)+float(t.nsecs) / 1000000000.0
 
 def quit(reason):
-    print reason
+    print(reason)
     rospy.signal_shutdown(reason)
 
 def distance(x0, y0, x1, y1):
@@ -38,7 +38,7 @@ def got_cmd_vel(msg):
 
     if start_time == None and msg.linear.x != 0:
         start_time = rospy.Time.now()
-        print "Start moving at %s" % toS(start_time)
+        print("Start moving at %s" % toS(start_time))
 
 def got_odom(msg):
     global start_time
